@@ -3,12 +3,14 @@ if {"::tcltest" ni [namespace children]} {
 	namespace import ::tcltest::*
 }
 
+package require xwiimote
+
 test monitor-1.1 {basic functionality} -body { #<<<
 	set monitor	[xwii::monitor]
 	$monitor read
 } -cleanup {
 	rename $monitor {}
-} -results {}
+} -result {}
 #>>>
 
 ::tcltest::cleanupTests
