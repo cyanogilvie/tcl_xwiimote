@@ -1,0 +1,17 @@
+if {"::tcltest" ni [namespace children]} {
+	package require tcltest
+	namespace import ::tcltest::*
+}
+
+test monitor-1.1 {basic functionality} -body { #<<<
+	set monitor	[xwii::monitor]
+	$monitor read
+} -cleanup {
+	rename $monitor {}
+} -results {}
+#>>>
+
+::tcltest::cleanupTests
+return
+
+# vim: ft=tcl foldmethod=marker foldmarker=<<<,>>> ts=4 shiftwidth=4
