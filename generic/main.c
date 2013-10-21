@@ -75,6 +75,9 @@ struct static_keys {
 	Tcl_Obj*	fretbar;
 	Tcl_Obj*	sources;
 	Tcl_Obj*	factor;
+	Tcl_Obj*	pitch;
+	Tcl_Obj*	yaw;
+	Tcl_Obj*	roll;
 };
 //>>>
 static void init_static_keys(struct static_keys* keys) //<<<
@@ -142,6 +145,9 @@ static void init_static_keys(struct static_keys* keys) //<<<
 	MAKE_KEY(fretbar, "fretbar");
 	MAKE_KEY(sources, "sources");
 	MAKE_KEY(factor, "factor");
+	MAKE_KEY(factor, "pitch");
+	MAKE_KEY(factor, "yaw");
+	MAKE_KEY(factor, "roll");
 	keys->initialized = 1;
 }
 
@@ -335,7 +341,7 @@ static int get_iface_bitmask_from_obj(Tcl_Interp* interp, Tcl_Obj* obj, unsigned
 	TEST_OK(Tcl_ListObjGetElements(interp, obj, &oc, &ov));
 
 	*bitmask = 0;
-	for (i=1; i<oc; i++) {
+	for (i=0; i<oc; i++) {
 		TEST_OK(Tcl_GetIndexFromObj(interp, ov[i], iface_names, "iface", TCL_EXACT, &iface));
 		*bitmask |= ifaces[iface];
 	}
@@ -496,8 +502,8 @@ static int construct_event(Tcl_Interp* interp, struct xwii_event* ev, Tcl_Obj** 
 		case XWII_EVENT_ACCEL: //<<<
 			TEST_OK(Tcl_DictObjPut(interp, *ev_dict, keys->type, keys->accel));
 			TEST_OK(Tcl_DictObjPut(interp, *ev_dict, keys->x, Tcl_NewIntObj(ev->v.abs[0].x)));
-			TEST_OK(Tcl_DictObjPut(interp, *ev_dict, keys->y, Tcl_NewIntObj(ev->v.abs[1].y)));
-			TEST_OK(Tcl_DictObjPut(interp, *ev_dict, keys->z, Tcl_NewIntObj(ev->v.abs[2].z)));
+			TEST_OK(Tcl_DictObjPut(interp, *ev_dict, keys->y, Tcl_NewIntObj(ev->v.abs[0].y)));
+			TEST_OK(Tcl_DictObjPut(interp, *ev_dict, keys->z, Tcl_NewIntObj(ev->v.abs[0].z)));
 			break;
 			//>>>
 		case XWII_EVENT_IR: //<<<
@@ -533,8 +539,8 @@ static int construct_event(Tcl_Interp* interp, struct xwii_event* ev, Tcl_Obj** 
 		case XWII_EVENT_MOTION_PLUS: //<<<
 			TEST_OK(Tcl_DictObjPut(interp, *ev_dict, keys->type, keys->motion_plus));
 			TEST_OK(Tcl_DictObjPut(interp, *ev_dict, keys->x, Tcl_NewIntObj(ev->v.abs[0].x)));
-			TEST_OK(Tcl_DictObjPut(interp, *ev_dict, keys->y, Tcl_NewIntObj(ev->v.abs[1].y)));
-			TEST_OK(Tcl_DictObjPut(interp, *ev_dict, keys->z, Tcl_NewIntObj(ev->v.abs[2].z)));
+			TEST_OK(Tcl_DictObjPut(interp, *ev_dict, keys->y, Tcl_NewIntObj(ev->v.abs[0].y)));
+			TEST_OK(Tcl_DictObjPut(interp, *ev_dict, keys->z, Tcl_NewIntObj(ev->v.abs[0].z)));
 			break;
 			//>>>
 		case XWII_EVENT_PRO_CONTROLLER_KEY: //<<<
@@ -630,7 +636,7 @@ static int construct_event(Tcl_Interp* interp, struct xwii_event* ev, Tcl_Obj** 
 				TEST_OK(Tcl_DictObjPut(interp, *ev_dict, keys->stick, t));
 
 				TEST_OK(Tcl_DictObjPut(interp, *ev_dict, keys->whammy, Tcl_NewIntObj(ev->v.abs[1].x)));
-				TEST_OK(Tcl_DictObjPut(interp, *ev_dict, keys->fretbar, Tcl_NewIntObj(ev->v.abs[1].x)));
+				TEST_OK(Tcl_DictObjPut(interp, *ev_dict, keys->fretbar, Tcl_NewIntObj(ev->v.abs[2].x)));
 			}
 			break;
 			//>>>

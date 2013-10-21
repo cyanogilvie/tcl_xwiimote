@@ -1,6 +1,7 @@
 #!/usr/bin/env tclsh
 
 package require xwiimote
+namespace path {::tcl::mathop}
 
 set monitor	[xwii::monitor]
 
@@ -9,10 +10,32 @@ proc iface_readable name {
 	set iface	[dict get $ifaces $name]
 
 	foreach event [$iface dispatch] {
-		puts "$name ev: ($event)"
 		switch -- [dict get $event type] {
 			watch {
 				puts "Available: [$iface available]"
+			}
+			accel {
+				set x	[* [dict get $event x] 0.0981]
+				set y	[* [dict get $event y] 0.0981]
+				set z	[* [dict get $event z] 0.0981]
+				set x	[- $x 2.4]
+				set y	[- $y 1.0]
+				set z	[- $z 2.3]
+
+				set mag	[expr {sqrt($x**2 + $y**2 + $z**2)}]
+				puts [format {Accel: (x: %5.2f, y: %5.2f, z: %5.2f, mag: %5.2f) m/s} $x $y $z $mag]
+			}
+			ir {
+				puts "IR: [join [lmap source [dict get $event sources] {
+					if {[llength $source] > 0} {
+						format "(%4d, %3d)" {*}$source
+					} else {
+						format ()
+					}
+				}]]"
+			}
+			default {
+				puts "$name ev: ($event)"
 			}
 		}
 	}
@@ -45,10 +68,7 @@ proc read_wiimotes {} {
 		#after 1000 [list $iface rumble 0]
 
 		try {
-			#[dict get $ifaces $name] open [lmap e {ALL} {
-			#	expr {$e in $available ? $e : [continue]}
-			#}]
-			$iface open {ALL}
+			$iface open ALL
 		} on error {errmsg options} {
 			puts $errmsg
 		}
